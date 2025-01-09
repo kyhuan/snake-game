@@ -7,6 +7,7 @@
            @keydown="handleKeyPress" 
            @touchstart="handleTouchStart"
            @touchmove="handleTouchMove"
+           @touchend="handleTouchEnd"
            tabindex="0"
            ref="gameBoard">
         <!-- 蛇身 -->
@@ -248,11 +249,12 @@ const handleKeyPress = (e) => {
 // 触摸控制相关变量
 const touchStartX = ref(0);
 const touchStartY = ref(0);
-const minSwipeDistance = 30; // 最小滑动距离
+const minSwipeDistance = 20; // 降低滑动触发阈值
 
 // 处理触摸开始
 const handleTouchStart = (e) => {
   if (!isPlaying.value) return;
+  e.preventDefault();
   touchStartX.value = e.touches[0].clientX;
   touchStartY.value = e.touches[0].clientY;
 };
@@ -260,18 +262,13 @@ const handleTouchStart = (e) => {
 // 处理触摸移动
 const handleTouchMove = (e) => {
   if (!isPlaying.value) return;
-  e.preventDefault(); // 防止页面滚动
+  e.preventDefault();
   
   const touchEndX = e.touches[0].clientX;
   const touchEndY = e.touches[0].clientY;
   
   const deltaX = touchEndX - touchStartX.value;
   const deltaY = touchEndY - touchStartY.value;
-  
-  // 确保滑动距离足够长
-  if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
-    return;
-  }
   
   // 判断滑动方向
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
@@ -289,10 +286,11 @@ const handleTouchMove = (e) => {
       direction.value = 'up';
     }
   }
-  
-  // 更新起始位置
-  touchStartX.value = touchEndX;
-  touchStartY.value = touchEndY;
+};
+
+const handleTouchEnd = (e) => {
+  if (!isPlaying.value) return;
+  e.preventDefault();
 };
 
 onMounted(() => {
@@ -575,24 +573,68 @@ onUnmounted(() => {
   .game-container {
     flex-direction: column;
     align-items: center;
+    padding: 10px;
+    gap: 15px;
+  }
+
+  .game-board {
+    touch-action: none;
+    border: 2px solid #333;
+    margin: 0 auto;
   }
 
   .side-section {
     width: 100%;
     max-width: 360px;
+    gap: 10px;
   }
 
-  .game-board {
-    touch-action: none; /* 防止默认的触摸行为 */
+  .difficulty-selector {
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
-  
+
   .difficulty-btn {
-    padding: 8px 16px; /* 增大按钮点击区域 */
+    padding: 10px;
+    margin: 0 5px;
+    min-width: 70px;
+    border-radius: 20px;
+    font-size: 14px;
   }
-  
+
   .start-btn {
-    padding: 12px; /* 增大开始按钮点击区域 */
+    width: 90%;
+    padding: 12px;
     font-size: 1.1em;
+    border-radius: 25px;
+    margin: 10px auto;
   }
+
+  .current-score {
+    font-size: 1.5em;
+    margin: 10px 0;
+    font-weight: bold;
+  }
+
+  .leaderboard {
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 15px;
+  }
+
+  .record {
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 10px;
+  }
+}
+
+/* 防止移动端选中文本 */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 </style> 
