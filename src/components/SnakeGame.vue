@@ -5,6 +5,8 @@
       <div class="game-board" 
            :style="{ width: boardSize + 'px', height: boardSize + 'px' }"
            @keydown="handleKeyPress" 
+           @touchstart="handleTouchStart"
+           @touchmove="handleTouchMove"
            tabindex="0"
            ref="gameBoard">
         <!-- 蛇身 -->
@@ -241,6 +243,56 @@ const handleKeyPress = (e) => {
       if (direction.value !== 'left') direction.value = 'right';
       break;
   }
+};
+
+// 触摸控制相关变量
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const minSwipeDistance = 30; // 最小滑动距离
+
+// 处理触摸开始
+const handleTouchStart = (e) => {
+  if (!isPlaying.value) return;
+  touchStartX.value = e.touches[0].clientX;
+  touchStartY.value = e.touches[0].clientY;
+};
+
+// 处理触摸移动
+const handleTouchMove = (e) => {
+  if (!isPlaying.value) return;
+  e.preventDefault(); // 防止页面滚动
+  
+  const touchEndX = e.touches[0].clientX;
+  const touchEndY = e.touches[0].clientY;
+  
+  const deltaX = touchEndX - touchStartX.value;
+  const deltaY = touchEndY - touchStartY.value;
+  
+  // 确保滑动距离足够长
+  if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+    return;
+  }
+  
+  // 判断滑动方向
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // 水平滑动
+    if (deltaX > 0 && direction.value !== 'left') {
+      direction.value = 'right';
+    } else if (deltaX < 0 && direction.value !== 'right') {
+      direction.value = 'left';
+    }
+  } else {
+    // 垂直滑动
+    if (deltaY > 0 && direction.value !== 'up') {
+      direction.value = 'down';
+    } else if (deltaY < 0 && direction.value !== 'down') {
+      direction.value = 'up';
+    }
+  }
+  
+  // 更新起始位置
+  touchStartX.value = touchEndX;
+  touchStartY.value = touchEndY;
 };
 
 onMounted(() => {
@@ -528,6 +580,19 @@ onUnmounted(() => {
   .side-section {
     width: 100%;
     max-width: 360px;
+  }
+
+  .game-board {
+    touch-action: none; /* 防止默认的触摸行为 */
+  }
+  
+  .difficulty-btn {
+    padding: 8px 16px; /* 增大按钮点击区域 */
+  }
+  
+  .start-btn {
+    padding: 12px; /* 增大开始按钮点击区域 */
+    font-size: 1.1em;
   }
 }
 </style> 
