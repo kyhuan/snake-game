@@ -1,24 +1,20 @@
 <template>
   <div class="app">
-    <h1>老K 贪吃蛇</h1>
     <SnakeGame />
   </div>
 </template>
 
 <script setup>
-import SnakeGame from './components/SnakeGame.vue';
+import SnakeGame from './components/SnakeGame.vue'
 </script>
 
 <style>
 .app {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: 20px;
-}
-
-h1 {
-  color: #333;
-  margin-bottom: 20px;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #f0f2f5;
 }
 </style> 
